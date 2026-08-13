@@ -15,9 +15,9 @@
 
   <Privileged>false</Privileged>
 
-  <Support/>
+  <Support>https://github.com/heroeswearkapes/comfyui-intel-xpu/issues</Support>
 
-  <Project>https://github.com/Comfy-Org/ComfyUI</Project>
+  <Project>https://github.com/heroeswearkapes/comfyui-intel-xpu</Project>
 
   <Overview>
 ComfyUI container with native PyTorch XPU support for Intel Arc GPUs.
@@ -41,7 +41,7 @@ The exact render device may vary between systems. Verify your Intel GPU render d
 
   <WebUI>http://[IP]:[PORT:8188]</WebUI>
 
-  <TemplateURL/>
+  <TemplateURL>https://raw.githubusercontent.com/heroeswearkapes/comfyui-intel-xpu/main/unraid/comfyui-intel-xpu.xml</TemplateURL>
 
   <Icon>https://i.imgur.com/RWkoRRZ.png</Icon>
 

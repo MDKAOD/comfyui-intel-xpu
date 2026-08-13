@@ -478,6 +478,3 @@ It is not an official ComfyUI, Intel, PyTorch, Hugging Face, or Unraid project.
 
 Intel GPU and custom-node compatibility can vary by GPU generation, kernel, driver, PyTorch version, and individual workflow.
 
-# License
-
-See the included `LICENSE` file.

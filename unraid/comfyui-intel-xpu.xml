@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+<Container version="2">
+
+  <Name>ComfyUI-Intel-XPU</Name>
+
+  <Repository>heroeswearkapes/comfyui-intel-xpu:latest</Repository>
+
+  <Registry>https://hub.docker.com/r/heroeswearkapes/comfyui-intel-xpu</Registry>
+
+  <Network>bridge</Network>
+
+  <MyIP/>
+
+  <Shell>bash</Shell>
+
+  <Privileged>false</Privileged>
+
+  <Support/>
+
+  <Project>https://github.com/Comfy-Org/ComfyUI</Project>
+
+  <Overview>
+ComfyUI container with native PyTorch XPU support for Intel Arc GPUs.
+
+Designed and tested with Intel Arc Pro Battlemage GPUs using the Linux xe driver and Intel Level Zero runtime.
+
+Includes:
+- ComfyUI
+- Native PyTorch XPU
+- ComfyUI Manager
+- Hugging Face CLI
+- aria2
+- Automatic ComfyUI model directory creation
+
+The Intel GPU must already be working on the Unraid host and exposed through /dev/dri.
+
+The exact render device may vary between systems. Verify your Intel GPU render device before installation.
+  </Overview>
+
+  <Category>AI: Other:</Category>
+
+  <WebUI>http://[IP]:[PORT:8188]</WebUI>
+
+  <TemplateURL/>
+
+  <Icon>https://i.imgur.com/RWkoRRZ.png</Icon>
+
+  <ExtraParams>--ipc=host</ExtraParams>
+
+  <PostArgs/>
+
+  <CPUset/>
+
+  <DateInstalled/>
+
+  <DonateText/>
+
+  <DonateLink/>
+
+<Requires>
+Intel Arc GPU with Linux xe driver and /dev/dri render device available on the Unraid host.
+
+RECOMMENDED BEFORE INSTALLATION:
+Create an Unraid share for ComfyUI data/models. The template defaults to a share named "AI":
+
+/mnt/user/AI/comfyui/models
+/mnt/user/AI/comfyui/input
+/mnt/user/AI/comfyui/output
+
+If you do not use an "AI" share, change these Host Path values during installation to locations appropriate for your Unraid system.
+
+The exact /dev/dri/renderD### device varies between systems. Verify which render device belongs to your Intel GPU before starting the container.
+</Requires>
+
+  <Config
+    Name="WebUI"
+    Target="8188"
+    Default="8188"
+    Mode="tcp"
+    Description="ComfyUI Web Interface"
+    Type="Port"
+    Display="always"
+    Required="true"
+    Mask="false">8188</Config>
+
+  <Config
+    Name="Intel GPU"
+    Target="/dev/dri/renderD128"
+    Default="/dev/dri/renderD128"
+    Mode=""
+    Description="Intel GPU render device. Change this to the renderD### device belonging to your Intel Arc GPU."
+    Type="Device"
+    Display="always"
+    Required="true"
+    Mask="false">/dev/dri/renderD128</Config>
+
+  <Config
+    Name="Models"
+    Target="/models"
+    Default="/mnt/user/AI/comfyui/models"
+    Mode="rw"
+    Description="Host path for persistent ComfyUI models. Default assumes an Unraid share named AI. Change this path if you use a different share."
+    Type="Path"
+    Display="always"
+    Required="true"
+    Mask="false">/mnt/user/AI/comfyui/models</Config>
+
+  <Config
+    Name="Input"
+    Target="/input"
+    Default="/mnt/user/AI/comfyui/input"
+    Mode="rw"
+    Description="Persistent ComfyUI input directory. Default assumes an Unraid share named AI. Change this path if you use a different share."
+    Type="Path"
+    Display="always"
+    Required="true"
+    Mask="false">/mnt/user/AI/comfyui/input</Config>
+
+  <Config
+    Name="Output"
+    Target="/output"
+    Default="/mnt/user/AI/comfyui/output"
+    Mode="rw"
+    Description="Persistent directory for generated images and other ComfyUI output. Default assumes an Unraid share named AI. Change this path if you use a different share."
+    Type="Path"
+    Display="always"
+    Required="true"
+    Mask="false">/mnt/user/AI/comfyui/output</Config>
+
+  <Config
+    Name="Custom Nodes"
+    Target="/custom_nodes"
+    Default="/mnt/user/appdata/comfyui-intel-xpu/custom_nodes"
+    Mode="rw"
+    Description="Persistent ComfyUI custom nodes directory. ComfyUI Manager is installed here automatically."
+    Type="Path"
+    Display="always"
+    Required="true"
+    Mask="false">/mnt/user/appdata/comfyui-intel-xpu/custom_nodes</Config>
+
+  <Config
+    Name="Config"
+    Target="/config"
+    Default="/mnt/user/appdata/comfyui-intel-xpu/config"
+    Mode="rw"
+    Description="Persistent ComfyUI Intel XPU configuration directory."
+    Type="Path"
+    Display="always"
+    Required="true"
+    Mask="false">/mnt/user/appdata/comfyui-intel-xpu/config</Config>
+
+  <Config
+    Name="Hugging Face Token"
+    Target="HF_TOKEN"
+    Default=""
+    Mode=""
+    Description="Optional Hugging Face access token for gated/private models. Leave blank if not required."
+    Type="Variable"
+    Display="advanced"
+    Required="false"
+    Mask="true"></Config>
+
+</Container>

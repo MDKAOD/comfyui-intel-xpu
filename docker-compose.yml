@@ -1,0 +1,30 @@
+services:
+  comfyui:
+    image: heroeswearkapes/comfyui-intel-xpu:dev
+    container_name: comfyui-intel-xpu
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        UBUNTU_VERSION: "26.04"
+
+    devices:
+      - /dev/dri:/dev/dri
+
+    ports:
+      - "8188:8188"
+
+    volumes:
+      - ./data/config:/config
+      - ./data/models:/models
+      - ./data/input:/input
+      - ./data/output:/output
+      - ./data/custom_nodes:/custom_nodes
+
+    environment:
+      COMFYUI_PORT: "8188"
+
+    ipc: host
+
+    restart: unless-stopped

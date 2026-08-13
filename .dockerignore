@@ -1,0 +1,9 @@
+.git
+.github
+.gitignore
+README.md
+LICENSE
+unraid
+*.log
+__pycache__
+*.pyc

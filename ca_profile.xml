@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<Maintainer>
+
+  <Profile>
+  heroeswearkapes maintains ComfyUI Intel XPU, a Docker image designed to make running ComfyUI with native PyTorch XPU acceleration on Intel Arc GPUs straightforward, with a focus on Docker and Unraid deployments.
+
+  The project includes Intel Level Zero and OpenCL runtime support, ComfyUI Manager, Hugging Face CLI, aria2, persistent model storage, and automatic ComfyUI model directory creation.
+
+  Initial development and validation was performed using an Intel Arc Pro B70 32 GB GPU with the Linux xe driver.
+  </Profile>
+
+  <WebPage>https://github.com/heroeswearkapes/comfyui-intel-xpu</WebPage>
+
+  <Icon>https://i.imgur.com/RWkoRRZ.png</Icon>
+
+</Maintainer>

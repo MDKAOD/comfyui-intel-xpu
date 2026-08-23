@@ -24,6 +24,7 @@ services:
 
     environment:
       COMFYUI_PORT: "8188"
+      CLI_ARGS: ""
 
     ipc: host
 

@@ -139,7 +139,7 @@ echo
 
 cd "${COMFYUI_DIR}"
 
-exec python main.py \
+exec python main.py ${CLI_ARGS} \
     --listen 0.0.0.0 \
     --port "${COMFYUI_PORT}" \
     "$@"

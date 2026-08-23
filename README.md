@@ -553,6 +553,18 @@ It is not an official ComfyUI, Intel, PyTorch, Hugging Face, or Unraid project.
 
 Intel GPU and custom-node compatibility can vary by GPU generation, kernel, driver, PyTorch version, and individual workflow.
 
+## Acknowledgements
+
+Special thanks to [MDKAOD](https://github.com/MDKAOD) for early community feedback and contributions to ComfyUI Intel XPU.
+
+Their feature requests and pull request helped drive the addition of:
+
+- Custom ComfyUI startup arguments through `CLI_ARGS`
+- Optional runtime Python package installation through `PIP_PACKAGES`
+- Improved runtime configurability for Docker and Unraid users
+
+Thank you for taking the time to test the project, provide feedback, and contribute ideas and code back to the community.
+
 ## License
 
 This project is licensed under the MIT License.

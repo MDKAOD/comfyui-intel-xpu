@@ -41,7 +41,7 @@ The exact render device may vary between systems. Verify your Intel GPU render d
 
   <WebUI>http://[IP]:[PORT:8188]</WebUI>
 
-  <TemplateURL>https://raw.githubusercontent.com/heroeswearkapes/comfyui-intel-xpu/main/unraid/comfyui-intel-xpu.xml</TemplateURL>
+  <TemplateURL>https://raw.githubusercontent.com/heroeswearkapes/unraid-community-apps/main/templates/comfyui-intel-xpu.xml</TemplateURL>
 
   <Icon>https://i.imgur.com/RWkoRRZ.png</Icon>
 
@@ -159,5 +159,27 @@ The exact /dev/dri/renderD### device varies between systems. Verify which render
     Display="advanced"
     Required="false"
     Mask="true"></Config>
+
+  <Config
+    Name="Additional ComfyUI CLI Arguments"
+    Target="CLI_ARGS"
+    Default=""
+    Mode=""
+    Description="Optional additional command-line arguments passed to ComfyUI at startup. Example: --disable-dynamic-vram --lowvram --cpu-vae --reserve-vram=1 --disable-smart-memory"
+    Type="Variable"
+    Display="advanced"
+    Required="false"
+    Mask="false"></Config>
+
+  <Config
+    Name="Additional Python Packages"
+    Target="PIP_PACKAGES"
+    Default=""
+    Mode=""
+    Description="Optional space-separated Python packages installed at container startup. Example: opencv-python imageio_ffmpeg"
+    Type="Variable"
+    Display="advanced"
+    Required="false"
+    Mask="false"></Config>  
 
 </Container>

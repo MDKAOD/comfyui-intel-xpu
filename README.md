@@ -19,6 +19,8 @@ This image was created primarily to make running ComfyUI on Intel Arc GPUs — i
 - Automatic creation of standard ComfyUI model directories
 - Designed for Intel GPUs using the Linux `xe` driver
 - Tested on Intel Arc Pro B70
+- Optional ComfyUI startup arguments through `CLI_ARGS`
+- Optional runtime Python packages through `PIP_PACKAGES`
 
 ## Tested Configuration
 
@@ -246,10 +248,83 @@ services:
       - ./data/output:/output
       - ./data/custom_nodes:/custom_nodes
 
+    environment:
+      # Optional additional ComfyUI startup arguments
+      # CLI_ARGS: "--disable-dynamic-vram --lowvram --cpu-vae --reserve-vram=1 --disable-smart-memory"
+
+      # Optional additional Python packages
+      # PIP_PACKAGES: "opencv-python imageio_ffmpeg"
+
     ipc: host
 
     restart: unless-stopped
 ```
+
+## Optional Runtime Configuration
+
+### Additional ComfyUI CLI Arguments
+
+Additional ComfyUI command-line arguments can be supplied with the `CLI_ARGS` environment variable.
+
+Example:
+
+    CLI_ARGS=--disable-dynamic-vram --lowvram --cpu-vae --reserve-vram=1 --disable-smart-memory
+
+The supplied arguments are appended to the standard ComfyUI launch command.
+
+On Unraid, this option is available under **Advanced View** as **Additional ComfyUI CLI Arguments**.
+
+Common options include:
+
+| Argument | Description |
+| --- | --- |
+| `--lowvram` | Reduce VRAM usage by moving text encoders to CPU when DynamicVRAM is disabled. |
+| `--novram` | More aggressive memory reduction when `--lowvram` is not enough. |
+| `--cpu-vae` | Run the VAE on the CPU. |
+| `--reserve-vram <GB>` | Reserve a specified amount of VRAM for the OS or other applications. |
+| `--vram-headroom <GB>` | Keep additional VRAM free when using DynamicVRAM. |
+| `--disable-dynamic-vram` | Disable DynamicVRAM and use estimate-based model loading. |
+| `--enable-dynamic-vram` | Explicitly enable DynamicVRAM. |
+| `--disable-smart-memory` | Aggressively offload models to system RAM instead of retaining them in VRAM. |
+| `--highvram` | Keep models in GPU memory instead of unloading them to CPU memory. |
+| `--gpu-only` | Store and run supported components on the GPU. |
+| `--force-fp16` | Force FP16 operation. |
+| `--force-fp32` | Force FP32 operation. |
+| `--bf16-unet` | Run the diffusion model in BF16. |
+| `--fp16-unet` | Run the diffusion model in FP16. |
+| `--bf16-vae` | Run the VAE in BF16. |
+| `--fp16-vae` | Run the VAE in FP16. |
+| `--disable-pinned-memory` | Disable pinned system memory. |
+| `--disable-mmap` | Disable mmap when loading safetensors. |
+| `--mmap-torch-files` | Use mmap when loading checkpoint and PyTorch files. |
+| `--force-non-blocking` | Force non-blocking operations where supported. |
+| `--cache-none` | Minimize cache memory at the expense of additional node execution. |
+| `--cache-classic` | Use the older aggressive caching behavior. |
+| `--cache-lru <N>` | Use an LRU cache with up to N cached node results. |
+| `--high-ram` | Prefer greater system RAM usage for caching/model loading. |
+| `--fast-disk` | Prefer disk-backed dynamic loading/offloading over unpinned RAM. |
+
+For the complete list of supported ComfyUI command-line arguments, see the [ComfyUI CLI Argument Reference](docs/comfyui-cli-arguments.md).
+
+The available arguments depend on the version of ComfyUI included in the container. You can always view the exact options supported by your installed image with:
+
+    docker exec ComfyUI-Intel-XPU python /opt/ComfyUI/main.py --help
+
+### Additional Python Packages
+
+Optional Python packages can be installed automatically at container startup using the `PIP_PACKAGES` environment variable.
+
+Example:
+
+    PIP_PACKAGES=opencv-python imageio_ffmpeg
+
+Multiple packages may be separated by spaces. Standard pip package specifications are supported.
+
+Packages are installed into the container's Python environment before ComfyUI Manager and ComfyUI are started.
+
+On Unraid, this option is available under **Advanced View** as **Additional Python Packages**.
+
+> Packages installed through `PIP_PACKAGES` are part of the running container. If the container is recreated or updated, the requested packages will be installed again automatically.
 
 # Model Directories
 

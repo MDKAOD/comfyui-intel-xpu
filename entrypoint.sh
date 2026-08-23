@@ -94,6 +94,65 @@ echo "[INFO] Persistent directories ready."
 echo
 
 # ---------------------------------------------------------------------------
+# Optional user-installed Python packages
+# ---------------------------------------------------------------------------
+
+if [[ -n "${PIP_PACKAGES:-}" ]]; then
+    echo "[INFO] Additional Python packages requested:"
+    echo "[INFO] ${PIP_PACKAGES}"
+
+    python - "${PIP_PACKAGES}" <<'PY'
+import shlex
+import subprocess
+import sys
+
+packages = shlex.split(sys.argv[1])
+
+if packages:
+    subprocess.check_call([
+        sys.executable,
+        "-m",
+        "pip",
+        "install",
+        "--disable-pip-version-check",
+        "--no-cache-dir",
+        *packages,
+    ])
+PY
+
+    echo "[INFO] Additional Python packages installed."
+else
+    echo "[INFO] No additional Python packages requested."
+fi
+
+echo
+
+# ---------------------------------------------------------------------------
+# Optional ComfyUI CLI arguments
+# ---------------------------------------------------------------------------
+
+EXTRA_CLI_ARGS=()
+
+if [[ -n "${CLI_ARGS:-}" ]]; then
+    echo "[INFO] Additional ComfyUI CLI arguments:"
+    echo "[INFO] ${CLI_ARGS}"
+
+    mapfile -d '' -t EXTRA_CLI_ARGS < <(
+        python - "${CLI_ARGS}" <<'PY'
+import shlex
+import sys
+
+for argument in shlex.split(sys.argv[1]):
+    sys.stdout.buffer.write(argument.encode() + b"\0")
+PY
+    )
+else
+    echo "[INFO] No additional ComfyUI CLI arguments requested."
+fi
+
+echo
+
+# ---------------------------------------------------------------------------
 # ComfyUI Manager
 # ---------------------------------------------------------------------------
 
@@ -142,4 +201,5 @@ cd "${COMFYUI_DIR}"
 exec python main.py \
     --listen 0.0.0.0 \
     --port "${COMFYUI_PORT}" \
+    "${EXTRA_CLI_ARGS[@]}" \
     "$@"

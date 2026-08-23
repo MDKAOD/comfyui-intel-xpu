@@ -55,7 +55,9 @@ RUN pip install --upgrade \
 # ---------------------------------------------------------------------------
 
 RUN pip install \
-    huggingface_hub    
+    huggingface_hub \
+    OpenCV-python \
+    imageio_ffmpeg
 
 # ---------------------------------------------------------------------------
 # PyTorch XPU

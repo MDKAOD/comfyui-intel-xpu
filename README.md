@@ -318,13 +318,80 @@ Example:
 
     PIP_PACKAGES=opencv-python imageio_ffmpeg
 
-Multiple packages may be separated by spaces. Standard pip package specifications are supported.
+Packages are installed into `/opt/venv`, the same Python environment used by ComfyUI, before ComfyUI Manager and ComfyUI start. Unset, empty, and whitespace-only values do nothing.
 
-Packages are installed into the container's Python environment before ComfyUI Manager and ComfyUI are started.
+Arguments are parsed with Python's `shlex.split` and passed directly to pip in their original order. Pins, extras, direct URLs, Git URLs, requirements/constraints files, editable installs, local paths, and pip options remain supported wherever pip supports them. Quote arguments containing spaces; paths must exist inside the container. Shell variables, globs, and command substitutions inside the value are not expanded by the entrypoint.
+
+Examples of environment variable values:
+
+```text
+PIP_PACKAGES="requests[socks]==2.32.4" imageio_ffmpeg
+PIP_PACKAGES=-r /config/requirements.txt -c /config/constraints.txt
+PIP_PACKAGES=-e "/custom_nodes/my local project"
+```
+
+These show literal values, not shell assignment commands. Use your deployment tool's quoting rules when configuring them.
 
 On Unraid, this option is available under **Advanced View** as **Additional Python Packages**.
 
-> Packages installed through `PIP_PACKAGES` are part of the running container. If the container is recreated or updated, the requested packages will be installed again automatically.
+#### Restart, recreation, and caching
+
+Pip runs on every startup with a nonempty package request. On an ordinary restart of the same container, installed packages remain in `/opt/venv`; pip normally leaves satisfied requirements alone. Options such as `--upgrade` or direct/local sources can require more work.
+
+On container recreation, installed additions are lost and pip installs the requested packages against the image's environment again. Only downloaded artifacts and reusable built wheels are persisted, under:
+
+```text
+/config/pip-cache/v1/<runtime-key>/
+```
+
+Mount `/config` on persistent storage to retain this cache. Existing Compose and recommended Unraid appdata mappings already do this. No additional volume is required. Site-packages and virtual environments are not persisted, and there is no persistent success marker that can cause installation to be skipped.
+
+The cache namespace combines an authoritative build-generated dependency identifier with cache schema version, Python implementation/version/SOABI, OS/architecture, and libc identity. During image build, after the base Python/XPU/ComfyUI dependencies are installed, the identifier snapshots their distribution versions and wheel-record hashes (including torch, torchvision, torchaudio, NumPy, pip and Intel packages), system-package versions, the interpreter, and system-package checksum manifests. Startup uses this saved digest; it does not rescan installed Python distributions or system packages, read wheel records, or probe the GPU. The image manifest stores only the schema and dependency digest, with no user request, credentials, or URLs.
+
+The key represents the base image runtime: installing, upgrading, downgrading, or removing user packages does not change it. Changing `PIP_PACKAGES`, restarting, and recreating from the same image all retain the same namespace. A changed base dependency digest or interpreter/platform identity selects a different namespace. User compiler settings do not affect the key. This boundary does not certify arbitrary third-party wheels or track modifications to the container's base libraries. If you replace ABI-sensitive dependencies in the running container, change compiler targets, or change GPUs, bypass/purge the cache and rebuild affected packages as needed.
+
+Caching reduces repeated download/build work; pip may still resolve dependencies, access package indexes, and install files. It does not guarantee offline startup. Large stable dependency stacks are better installed at build time in a derived image, especially when startup must perform no installation.
+
+Caching is enabled only for the `PIP_PACKAGES` pip process. Image build steps and ComfyUI Manager retain their existing pip settings. The entrypoint logs the default cache path without echoing the package request. Explicit options in `PIP_PACKAGES`, including `--cache-dir /some/path` and `--no-cache-dir`, are passed after the default and can override it. An explicit custom cache path opts out of the automatic runtime separation; manage its compatibility yourself. The helper's default command-line cache path takes precedence over `PIP_CACHE_DIR` in the environment.
+
+#### Refresh, removal, and recovery
+
+Use pip's existing options as needed:
+
+- `--upgrade`: select newer versions allowed by the request.
+- `--force-reinstall`: reinstall even when the request is already satisfied.
+- `--no-cache-dir`: bypass the cache. Combine with `--force-reinstall` for a fresh reinstall.
+
+For example, a literal value is `PIP_PACKAGES=--force-reinstall --no-cache-dir imageio_ffmpeg`. Reinstalling unpinned packages may select newer versions and change dependencies, including components used by ComfyUI.
+
+Removing a package from `PIP_PACKAGES` stops requesting it; it does not uninstall it from an existing container. Recreate the container to start from the image baseline and install the remaining request. Removed packages can still be present if included in the image or required by another package. Clearing the variable likewise does not uninstall anything.
+
+If the runtime manifest is missing/invalid, runtime metadata cannot be read, or the default cache cannot be created/written, the helper warns and defaults to uncached installation. Explicit user cache options can still override that default. A pip failure stops startup, as before. Interrupted installations can leave partial changes in the container; retry, force-reinstall, or recreate it to recover. A corrupt cache can be bypassed or purged. No automatic rollback or destructive cache cleanup is performed.
+
+#### Cache maintenance
+
+Old runtime namespaces and artifacts can accumulate; there is no automatic eviction or size cap. Monitor appdata capacity or apply a filesystem quota. Use the actual namespace path printed in the startup log in place of `<runtime-key>`:
+
+```bash
+docker exec comfyui-intel-xpu du -sh /config/pip-cache
+docker exec comfyui-intel-xpu python -m pip cache info --cache-dir "/config/pip-cache/v1/<runtime-key>"
+docker exec comfyui-intel-xpu python -m pip cache purge --cache-dir "/config/pip-cache/v1/<runtime-key>"
+```
+
+Replace the placeholder before running these commands. The explicit `--cache-dir` selects the cache despite the image's global cache-disabling environment setting. Purging deletes cached artifacts, not installed packages; later installations may download/build them again. Avoid purging a namespace while an installation uses it. Unused older namespaces can be removed manually once no container uses them. Cache contents can generally be excluded from backups, but keep original local package sources and requirements files.
+
+Use appdata/cache directories writable only by trusted users and containers. Package installation can execute build code, and pip or package build logs may contain user-supplied information even though the helper does not echo the request.
+
+#### Testing the package helper
+
+Run the GPU-free tests from the repository root:
+
+```bash
+python3 -B -m unittest discover -s tests -v
+bash -n entrypoint.sh
+```
+
+The focused tests exercise argument preservation, cache identity and fallback, repeated startup/recreation invocation semantics, and startup failure propagation. Pip is mocked or replaced with a subprocess stub; these tests do not measure download savings or validate real dependency resolution, native wheel imports, or full-image XPU compatibility. Before release, build the image locally and verify actual restart/recreation installs, pip cache-option precedence, cache reuse, and a native extension. The repository does not establish arm64 image support; architecture separation is tested without claiming an arm64 XPU build.
 
 # Model Directories
 

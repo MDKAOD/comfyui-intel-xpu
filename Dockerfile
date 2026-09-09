@@ -126,8 +126,11 @@ RUN mkdir -p \
 # ---------------------------------------------------------------------------
 
 COPY entrypoint.sh /entrypoint.sh
+COPY scripts/pip_packages.py /opt/pip_packages.py
 
-RUN chmod +x /entrypoint.sh
+# Content-derived identity of the completed image dependencies, not install state.
+RUN chmod +x /entrypoint.sh \
+    && python /opt/pip_packages.py --write-runtime-manifest
 
 # ---------------------------------------------------------------------------
 # Networking

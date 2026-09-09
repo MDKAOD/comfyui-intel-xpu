@@ -97,33 +97,7 @@ echo
 # Optional user-installed Python packages
 # ---------------------------------------------------------------------------
 
-if [[ -n "${PIP_PACKAGES:-}" ]]; then
-    echo "[INFO] Additional Python packages requested:"
-    echo "[INFO] ${PIP_PACKAGES}"
-
-    python - "${PIP_PACKAGES}" <<'PY'
-import shlex
-import subprocess
-import sys
-
-packages = shlex.split(sys.argv[1])
-
-if packages:
-    subprocess.check_call([
-        sys.executable,
-        "-m",
-        "pip",
-        "install",
-        "--disable-pip-version-check",
-        "--no-cache-dir",
-        *packages,
-    ])
-PY
-
-    echo "[INFO] Additional Python packages installed."
-else
-    echo "[INFO] No additional Python packages requested."
-fi
+python /opt/pip_packages.py
 
 echo
 

@@ -24,6 +24,8 @@ services:
 
     environment:
       COMFYUI_PORT: "8188"
+      # Optional: installed in the container; download/build cache uses /config.
+      # PIP_PACKAGES: "opencv-python imageio_ffmpeg"
 
     ipc: host
 
